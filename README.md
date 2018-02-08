@@ -1,16 +1,21 @@
-# Use A Passphrase (.com)
+
+
+
+# My Fork of 'Use A Passphrase (.com)'
 
 This site is intended to both generate simple passphrases as well as advocate
 for the use of random passphrases over human-generated passwords.
 
-# How to Contribute
+[Original Project by Mike-Hearn](https://github.com/mike-hearn/useapassphrase)
 
-This site needs a lot of work. Please contribute to any of the following:
+# Modifications I've made
 
-* To improving the persuasiveness of the argument, which is all contained in
-  `passphrase_advocate.md`.
-* To the wordlist from which the passwords are generated, which is contained in `js/wordlist.js`
-* Add additional password possibilities (e.g. four-word-with-space).
+- Updated NPM Package versions
+- Altered application code and UI to allow a larger range of word selections, minimum now is 5 words
+- Added functionality to randomly substitute characters for randomly selected symbols in the password or simply append them
+- Replaced the old worldlist with the offical (and much stronger) [Diceware EFF wordlist](https://www.eff.org/deeplinks/2016/07/new-wordlists-random-passphrases)
+- Minor styling updates to accomodate for symbol modification and longer passwords
+
 
 # Running It Locally
 
