@@ -20,7 +20,7 @@ input {
   margin: 0 auto;
   font-size: 40px;
   height: 60px;
-  width: 90%;
+  width: 100%;
   text-align: center;
   padding: 1%;
 }
@@ -107,7 +107,7 @@ li {
   text-align: center;
   margin: 0 auto;
   font-weight: 700;
-  font-size: 72%;
+  font-size: 78%;
 }
 .crack-time-label .crack-time {
   font-weight: 400;

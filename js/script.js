@@ -1,7 +1,8 @@
 'use strict';
 
 var DEFAULT_NO_WORDS = 5;
-var symbolList = ['!', '&', '"', '[', '~', '|', '\'', '*', '%', '#', '`', '<', '-', '$', ',', '?', ';', '(', '+', '}', ':', '^', '=', ')', '{', '>', ']', '_', '.', '@', '\\'];
+var MAX_WORD_TEXT_SIZE = 11; //limiter for adjusting text size in output box
+var PASSPHRASE_BASE_TEXT_SIZE = '38';
 
 function generatePassword(numberOfWords) {
   // Cryptographically generated random numbers
@@ -21,12 +22,6 @@ function generatePassword(numberOfWords) {
   }
 
   return generatedPasswordArray.join(' ');
-}
-
-function setStyleFromWordNumber(passwordField, numberOfWords) {
-  var baseSize = '38';
-  var newSize = baseSize * (4/numberOfWords);
-  passwordField.setAttribute('style', 'font-size: ' + newSize + 'px;');
 }
 
 function convertSecondsToReadable(seconds) {
@@ -61,14 +56,36 @@ function convertSecondsToReadable(seconds) {
   return timeString.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+function setStyleFromWordNumber(passwordField) {
+  var baseSize = PASSPHRASE_BASE_TEXT_SIZE;
+
+  var noWords = 0;
+  var individualWords = passwordField.value.split(' ');
+
+  //we need to ignore standalone symbols counting as a whole world because this causes the text to get too small
+  for(var i = 0; i < individualWords.length; i++){
+    if(!(individualWords[i].length == 1)){
+      noWords++;
+    }
+  }
+
+  //For every 5 standalone symbols (those that are surrounded by a space) count as a word
+  noWords += Math.floor(countStandaloneSymbols(passwordField) / 5);
+
+  //Still cap at 12 
+  if(noWords > MAX_WORD_TEXT_SIZE)
+    noWords = MAX_WORD_TEXT_SIZE;
+
+  var newSize = baseSize * (4/noWords);
+  passwordField.setAttribute('style', 'font-size: ' + newSize + 'px;');
+}
+
 function calculateAndSetCrackTime(numberOfWords) {
   var timeToCrack = zxcvbn(passwordField.value);
   var readableCrackTime = convertSecondsToReadable(timeToCrack.crack_time);
   document.querySelector('.crack-time').innerHTML = readableCrackTime;
-  if(numberOfWords)
-    setStyleFromWordNumber(passwordField, numberOfWords);
-  else
-    setStyleFromWordNumber(passwordField, calculateNumWords()); //If not using clicked generation, user must have entered manually or added symbol
+
+  setStyleFromWordNumber(passwordField);
 
 }
 
@@ -78,10 +95,27 @@ var button = document.querySelector('.btn-generate');
 var appendSymbolButton = document.querySelector('.btn-addsymbol');
 var substituteSymbolButton = document.querySelector('.btn-subsymbol');
 
+//Appending symbols can cause the field to recongize them as a whole world and make text too small in the setStyle function
+// Standalone symbol example 'testing motorbike @ phrase ! three' <- contains two standalone symbols
+function countStandaloneSymbols(passwordField){
+  var noStandaloneSymbols = 0;
+  var split = passwordField.value.split(' ');
+
+  for(var i = 0; i < split.length; i++){
+    if(split[i].length == 1){
+      noStandaloneSymbols++;
+    }
+  }
+
+  return noStandaloneSymbols;
+}
+
 function calculateNumWords(){
   var noWords = passwordField.value.split(' ').length;
-  if(noWords >= 16) //and check char length?
-    return 16;
+
+  if(noWords >= MAX_WORD_TEXT_SIZE) // Gets too small above this value
+    return MAX_WORD_TEXT_SIZE;
+  
   return noWords >= 5 ? noWords : 5; //Don't get smaller than 5 words or else font becomes too large
 }
 
@@ -144,13 +178,9 @@ appendSymbolButton.addEventListener('click', function() {
 
 // Listen for password value change
 passwordField.addEventListener('input', function (evt) {
-
   calculateAndSetCrackTime();
 });
-
 
 // Initially run it upon load
 passwordField.setAttribute('value', generatePassword(DEFAULT_NO_WORDS));
 calculateAndSetCrackTime();
-
-//setStyleFromWordNumber(passwordField, DEFAULT_NO_WORDS);
