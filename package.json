@@ -4,15 +4,16 @@
   "description": "A random passphrase generator and site.",
   "main": "Gruntfile.js",
   "dependencies": {
-    "grunt": "^0.4.5",
-    "grunt-inline": "^0.3.4",
-    "assemble": "^0.4.42"
+    "grunt": "^1.0.2",
+    "grunt-inline": "^0.3.6",
+    "assemble": "^0.24.3"
   },
   "devDependencies": {
-    "assemble": "^0.4.42",
-    "grunt": "^0.4.5",
-    "grunt-cli": "^0.1.13",
-    "grunt-inline": "^0.3.4"
+    "assemble": "^0.24.3",
+    "grunt": "^1.0.2",
+    "grunt-assemble": "^0.6.3",
+    "grunt-cli": "^1.2.0",
+    "grunt-inline": "^0.3.6"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

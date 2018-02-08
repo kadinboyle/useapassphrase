@@ -13,7 +13,7 @@ function generatePassword(numberOfWords) {
 
   // Grab a random word, push it to the password array
   for (var i = 0; i < array.length; i++) {
-      var index = (array[i] % 5852);
+      var index = (array[i] % 7776); //5852 - 5837 = 15
       generatedPasswordArray.push(wordlist[index]);
   }
 
@@ -21,7 +21,7 @@ function generatePassword(numberOfWords) {
 }
 
 function setStyleFromWordNumber(passwordField, numberOfWords) {
-  var baseSize = '40';
+  var baseSize = '38';
   var newSize = baseSize * (4/numberOfWords);
   passwordField.setAttribute('style', 'font-size: ' + newSize + 'px;');
 }
@@ -67,9 +67,11 @@ function calculateAndSetCrackTime() {
 var selectField = document.getElementById('passphrase_select');
 var passwordField = document.getElementById('passphrase');
 var button = document.querySelector('.btn-generate');
+var appendSymbolButton = document.querySelector('.btn-addsymbol');
+
 
 // Initially run it upon load
-passwordField.setAttribute('value', generatePassword(4));
+passwordField.setAttribute('value', generatePassword(5));
 calculateAndSetCrackTime();
 
 // Listen for a button click
@@ -80,7 +82,17 @@ button.addEventListener('click', function() {
   calculateAndSetCrackTime();
 });
 
+// Listen for add random symbol button click
+appendSymbolButton.addEventListener('click', function() {
+  var numberOfWords = selectField.options[selectField.selectedIndex].value;
+  passwordField.value = generatePassword(numberOfWords);
+  setStyleFromWordNumber(passwordField, numberOfWords);
+  calculateAndSetCrackTime();
+});
+
 // Listen for password value change
 passwordField.addEventListener('input', function (evt) {
   calculateAndSetCrackTime();
 });
+
+setStyleFromWordNumber(passwordField, 5);

@@ -13,6 +13,7 @@ module.exports = function(grunt) {
           breaks: false,
           gfm: true,
           },
+          noEscape:true,
       },
       site: {
         src: ['dist/index.html'],
@@ -22,7 +23,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-inline');
-  grunt.loadNpmTasks('assemble');
+  grunt.loadNpmTasks('grunt-assemble');
 
   grunt.registerTask('default', ['inline', 'assemble']);
 
