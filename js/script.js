@@ -1,6 +1,7 @@
 'use strict';
 
 var DEFAULT_NO_WORDS = 5;
+var symbolList = ['!', '&', '"', '[', '~', '|', '\'', '*', '%', '#', '`', '<', '-', '$', ',', '?', ';', '(', '+', '}', ':', '^', '=', ')', '{', '>', ']', '_', '.', '@', '\\'];
 
 function generatePassword(numberOfWords) {
   // Cryptographically generated random numbers
@@ -60,41 +61,98 @@ function convertSecondsToReadable(seconds) {
   return timeString.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
-function calculateAndSetCrackTime() {
+function calculateAndSetCrackTime(numberOfWords) {
   var timeToCrack = zxcvbn(passwordField.value);
   var readableCrackTime = convertSecondsToReadable(timeToCrack.crack_time);
   document.querySelector('.crack-time').innerHTML = readableCrackTime;
+  if(numberOfWords)
+    setStyleFromWordNumber(passwordField, numberOfWords);
+  else
+    setStyleFromWordNumber(passwordField, calculateNumWords()); //If not using clicked generation, user must have entered manually or added symbol
+
 }
 
 var selectField = document.getElementById('passphrase_select');
 var passwordField = document.getElementById('passphrase');
 var button = document.querySelector('.btn-generate');
 var appendSymbolButton = document.querySelector('.btn-addsymbol');
+var substituteSymbolButton = document.querySelector('.btn-subsymbol');
+
+function calculateNumWords(){
+  var noWords = passwordField.value.split(' ').length;
+  if(noWords >= 16) //and check char length?
+    return 16;
+  return noWords >= 5 ? noWords : 5; //Don't get smaller than 5 words or else font becomes too large
+}
+
+// Listen for a button click
+button.addEventListener('click', function() {
+  var numberOfWords = selectField.options[selectField.selectedIndex].value;
+  passwordField.value = generatePassword(numberOfWords);
+  calculateAndSetCrackTime(numberOfWords);
+});
+
+
+function modifyPassphraseWithSymbol(appendOnly){
+  var noWords = parseInt(calculateNumWords());
+  var crypto = window.crypto || window.msCrypto;
+  var array = new Uint32Array(1);
+
+  var newPassphrase;
+
+  //split existing password into array so we can pick a random word to replace a char in if we are doing not appendOnly
+  var passwordFieldSplit = passwordField.value.split(' ');
+
+  //pick random symbol from list
+  crypto.getRandomValues(array);
+  var randomSymbol = symbolList[(array[0] % symbolList.length)];
+
+  if(!appendOnly){
+    
+    //first select random word in passphrase that we will swap out a char for a random symbol
+    crypto.getRandomValues(array);
+    var indexOfTargetWord = (array[0] % noWords);
+  
+    //select chose char to replace in selected word
+    crypto.getRandomValues(array);
+    var charIndexToReplace = (array[0] % passwordFieldSplit[indexOfTargetWord].length);
+  
+    console.log("RANDOM WORD: ", indexOfTargetWord, " SYMBOL: ", randomSymbol, "LENGTH OF WORD: ", passwordFieldSplit[indexOfTargetWord].length);
+    console.log(" CHAR INDEX: ", charIndexToReplace);
+  
+    var word = passwordFieldSplit[indexOfTargetWord];
+    var newWord = word.substr(0, charIndexToReplace) + randomSymbol + word.substr(charIndexToReplace + 1);
+
+    passwordFieldSplit[indexOfTargetWord] = newWord;
+    newPassphrase = passwordFieldSplit.join(" ");
+  } else {
+    newPassphrase = passwordField.value + ' ' + randomSymbol;
+  }
+
+  passwordField.value = newPassphrase;
+}
+
+// Listen for add random symbol button click
+substituteSymbolButton.addEventListener('click', function() {
+  modifyPassphraseWithSymbol(false);
+  calculateAndSetCrackTime();
+});
+
+// Listen for add random symbol button click
+appendSymbolButton.addEventListener('click', function() {
+  modifyPassphraseWithSymbol(true);
+  calculateAndSetCrackTime();
+});
+
+// Listen for password value change
+passwordField.addEventListener('input', function (evt) {
+
+  calculateAndSetCrackTime();
+});
 
 
 // Initially run it upon load
 passwordField.setAttribute('value', generatePassword(DEFAULT_NO_WORDS));
 calculateAndSetCrackTime();
 
-// Listen for a button click
-button.addEventListener('click', function() {
-  var numberOfWords = selectField.options[selectField.selectedIndex].value;
-  passwordField.value = generatePassword(numberOfWords);
-  setStyleFromWordNumber(passwordField, numberOfWords);
-  calculateAndSetCrackTime();
-});
-
-// Listen for add random symbol button click
-appendSymbolButton.addEventListener('click', function() {
-  var numberOfWords = selectField.options[selectField.selectedIndex].value;
-  passwordField.value = generatePassword(numberOfWords);
-  setStyleFromWordNumber(passwordField, numberOfWords);
-  calculateAndSetCrackTime();
-});
-
-// Listen for password value change
-passwordField.addEventListener('input', function (evt) {
-  calculateAndSetCrackTime();
-});
-
-setStyleFromWordNumber(passwordField, DEFAULT_NO_WORDS);
+//setStyleFromWordNumber(passwordField, DEFAULT_NO_WORDS);
