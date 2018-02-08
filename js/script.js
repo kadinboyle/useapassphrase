@@ -1,5 +1,7 @@
 'use strict';
 
+var DEFAULT_NO_WORDS = 5;
+
 function generatePassword(numberOfWords) {
   // Cryptographically generated random numbers
   numberOfWords = parseInt(numberOfWords);
@@ -71,7 +73,7 @@ var appendSymbolButton = document.querySelector('.btn-addsymbol');
 
 
 // Initially run it upon load
-passwordField.setAttribute('value', generatePassword(5));
+passwordField.setAttribute('value', generatePassword(DEFAULT_NO_WORDS));
 calculateAndSetCrackTime();
 
 // Listen for a button click
@@ -95,4 +97,4 @@ passwordField.addEventListener('input', function (evt) {
   calculateAndSetCrackTime();
 });
 
-setStyleFromWordNumber(passwordField, 5);
+setStyleFromWordNumber(passwordField, DEFAULT_NO_WORDS);
