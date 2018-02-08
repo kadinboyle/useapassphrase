@@ -117,9 +117,7 @@ function modifyPassphraseWithSymbol(appendOnly){
     crypto.getRandomValues(array);
     var charIndexToReplace = (array[0] % passwordFieldSplit[indexOfTargetWord].length);
   
-    console.log("RANDOM WORD: ", indexOfTargetWord, " SYMBOL: ", randomSymbol, "LENGTH OF WORD: ", passwordFieldSplit[indexOfTargetWord].length);
-    console.log(" CHAR INDEX: ", charIndexToReplace);
-  
+    //replace the word with a new word that has a random symbol substituted in
     var word = passwordFieldSplit[indexOfTargetWord];
     var newWord = word.substr(0, charIndexToReplace) + randomSymbol + word.substr(charIndexToReplace + 1);
 
