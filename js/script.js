@@ -1,6 +1,7 @@
 'use strict';
 
 var DEFAULT_NO_WORDS = 5;
+var WORDLIST_SIZE = 7776;
 var MAX_WORD_TEXT_SIZE = 11; //limiter for adjusting text size in output box
 var PASSPHRASE_BASE_TEXT_SIZE = '38';
 
@@ -14,10 +15,9 @@ function generatePassword(numberOfWords) {
   // Empty array to be filled with wordlist
   var generatedPasswordArray = [];
 
-
   // Grab a random word, push it to the password array
   for (var i = 0; i < array.length; i++) {
-      var index = (array[i] % 7776); //5852 - 5837 = 15
+      var index = (array[i] % WORDLIST_SIZE);
       generatedPasswordArray.push(wordlist[index]);
   }
 
@@ -59,7 +59,7 @@ function convertSecondsToReadable(seconds) {
 function setStyleFromWordNumber(passwordField) {
   var baseSize = PASSPHRASE_BASE_TEXT_SIZE;
 
-  var noWords = 0;
+  var noWords = 0; //this is just a modifier and is adjusted to limits specified to style the text accordingly
   var individualWords = passwordField.value.split(' ');
 
   //we need to ignore standalone symbols counting as a whole world because this causes the text to get too small
@@ -68,13 +68,15 @@ function setStyleFromWordNumber(passwordField) {
       noWords++;
     }
   }
-
+  
   //For every 5 standalone symbols (those that are surrounded by a space) count as a word
   noWords += Math.floor(countStandaloneSymbols(passwordField) / 5);
 
   //Still cap at 12 
   if(noWords > MAX_WORD_TEXT_SIZE)
     noWords = MAX_WORD_TEXT_SIZE;
+  else if(noWords < 5)
+    noWords = 5;
 
   var newSize = baseSize * (4/noWords);
   passwordField.setAttribute('style', 'font-size: ' + newSize + 'px;');
@@ -89,6 +91,7 @@ function calculateAndSetCrackTime(numberOfWords) {
 
 }
 
+
 var selectField = document.getElementById('passphrase_select');
 var passwordField = document.getElementById('passphrase');
 var button = document.querySelector('.btn-generate');
@@ -96,7 +99,7 @@ var appendSymbolButton = document.querySelector('.btn-addsymbol');
 var substituteSymbolButton = document.querySelector('.btn-subsymbol');
 
 //Appending symbols can cause the field to recongize them as a whole world and make text too small in the setStyle function
-// Standalone symbol example 'testing motorbike @ phrase ! three' <- contains two standalone symbols
+//Example 'testing motorbike @ phrase ! three' <- contains two standalone symbols
 function countStandaloneSymbols(passwordField){
   var noStandaloneSymbols = 0;
   var split = passwordField.value.split(' ');
@@ -110,13 +113,9 @@ function countStandaloneSymbols(passwordField){
   return noStandaloneSymbols;
 }
 
+//Calculates the number of 'words' currently sitting in the passphrase field (inclusive of single char standalone symbols)
 function calculateNumWords(){
-  var noWords = passwordField.value.split(' ').length;
-
-  if(noWords >= MAX_WORD_TEXT_SIZE) // Gets too small above this value
-    return MAX_WORD_TEXT_SIZE;
-  
-  return noWords >= 5 ? noWords : 5; //Don't get smaller than 5 words or else font becomes too large
+  return passwordField.value.split(' ').length;
 }
 
 // Listen for a button click

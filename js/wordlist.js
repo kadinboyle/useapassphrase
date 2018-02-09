@@ -1,3 +1,5 @@
+
+//Official Diceware EFF wordlist (7776 words)
 var wordlist = [
   'abacus',
   'abdomen',
